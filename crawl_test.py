@@ -73,7 +73,7 @@ def rough_filter_batch(new_infos) -> list:
     info_titles = [f"{index}. {item['title']}" for index, item in enumerate(new_infos)]
     info_titles_text = '\n'.join(info_titles)
 
-    # 让gpt-4o筛选哪些titles是相关内容，输出索引号
+    # 让gpt-5筛选哪些titles是相关内容，输出索引号
     filtered_info_titles_index = func.title_filter_rough(info_titles_text)
 
     # 筛选出包含这些有用title的元素
@@ -190,7 +190,7 @@ def get_producthunt():
 
 
 # 用于将新闻玩家信息总结
-def write_news(new_doc, info_titles_final, info_titles2link, manual=False, choice='4o'):
+def write_news(new_doc, info_titles_final, info_titles2link, manual=False, choice='gpt5'):
     # 标准开头
     doc.add_title(new_doc, f'【ChatGPT全球动态日报{datetime.datetime.now().strftime("%m%d")}】 — TEG战略发展中心推送', level=1)
     doc.add_paragraph(new_doc, 'Dear all，')
@@ -242,7 +242,7 @@ def write_news(new_doc, info_titles_final, info_titles2link, manual=False, choic
 
 
 # 用于将论文信息总结
-def write_papers(new_doc, papers, manual=False, choice='4o'):
+def write_papers(new_doc, papers, manual=False, choice='gpt5'):
     doc.add_title(new_doc, '二、技术前沿分析', level=1)
 
     # 无论文
@@ -286,7 +286,7 @@ def write_papers(new_doc, papers, manual=False, choice='4o'):
     save_doc(new_doc, 'papers')
 
 
-def write_producthunt(new_doc, producthunt_items, manual=False, choice='4o'):
+def write_producthunt(new_doc, producthunt_items, manual=False, choice='gpt5'):
     doc.add_title(new_doc, '三、应用场景分析', level=1)
 
     if producthunt_items is None or len(producthunt_items) == 0:
@@ -340,7 +340,7 @@ def write_producthunt(new_doc, producthunt_items, manual=False, choice='4o'):
 
 
 def make_report(manual=False, paper_days=1, news_days=1,
-                makenews=True, makepapers=True, makeproduct=True, choice='4o'):
+                makenews=True, makepapers=True, makeproduct=True, choice='gpt5'):
     """
     生成报告（docx），并在最后把最终 docx 转为 HTML 字符串返回
     scheduler → send_email 会把该 HTML 作为邮件正文发送

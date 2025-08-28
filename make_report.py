@@ -101,11 +101,10 @@ def main():
         # Choice section
         choice_frame = ttk.LabelFrame(root, text="Choice Options")
         choice_frame.pack(fill="x", padx=10, pady=10)
-        choice_var = tk.StringVar(value="4o")
+        choice_var = tk.StringVar(value="gpt5")
         choice_label = ttk.Label(choice_frame, text="Choice:")
         choice_label.pack(side="left", padx=10)
-        choice_var = tk.StringVar(value="")
-        choice_combobox = ttk.Combobox(choice_frame, textvariable=choice_var, values=["4o", "mini"],
+        choice_combobox = ttk.Combobox(choice_frame, textvariable=choice_var, values=["gpt5"],
                                        state="readonly")
         choice_combobox.pack(side="left", padx=10)
 

@@ -27,17 +27,24 @@ def title_filter_rough(full_text):
                     '不需要print。如果没有任何可用的信息，直接让news_current为一个空list。'''
 
 
-    # 让gpt找到所有相关的词条和对应网址，result变量还不是可以运行的python文件
+    # 让gpt找到所有相关的词条和对应网址，result 变量还不是可以运行的 python 文件
     result = api.gpt_request(prompt_prefix.format(text=full_text, date=date.today()))
-    # print(result)
 
-
-    # print('粗筛成功')
-    # 分割出可执行文件，然后运行，获得news_current字典
-    result_run = re.search(r"```(.*?)```", result, re.DOTALL).group(1).split('python')[1].strip()
-    exec_namespace = {}
-    exec(result_run, exec_namespace)
-    news_current = exec_namespace.get('news_current', {})
+    # 分割出可执行文件，然后运行，获得 news_current 字典
+    match = re.search(r"```(.*?)```", result, re.DOTALL)
+    if match:
+        code_block = match.group(1)
+        parts = code_block.split('python')
+        result_run = parts[1].strip() if len(parts) > 1 else parts[0].strip()
+        exec_namespace = {}
+        try:
+            exec(result_run, exec_namespace)
+        except Exception:
+            exec_namespace['news_current'] = []
+    else:
+        # 如果未找到代码块，则返回空列表，避免 NoneType 错误
+        exec_namespace = {'news_current': []}
+    news_current = exec_namespace.get('news_current', [])
 
     # 深拷贝 news_current 并添加到 news_list 中
     news_list = copy.deepcopy(news_current)
@@ -64,9 +71,19 @@ def title_filter_final(titles_text):
 
     result = api.gpt_request(prompt_prefix.format(titles = titles_text))
 
-    result_run = re.search(r"```(.*?)```", result, re.DOTALL).group(1).split('python')[1].strip()
-    exec(result_run,globals())
-    titles_fine = eval('titles_fine')
+    match = re.search(r"```(.*?)```", result, re.DOTALL)
+    if match:
+        code_block = match.group(1)
+        parts = code_block.split('python')
+        result_run = parts[1].strip() if len(parts) > 1 else parts[0].strip()
+        try:
+            exec(result_run, globals())
+            titles_fine = eval('titles_fine')
+        except Exception:
+            titles_fine = {}
+    else:
+        # 没有返回代码块时，直接返回空字典
+        titles_fine = {}
 
     return titles_fine
 

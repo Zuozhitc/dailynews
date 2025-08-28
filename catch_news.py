@@ -3,6 +3,7 @@ import re
 import sqlite3
 
 from catch_sources.catch_36kr import catch_36kr
+from catch_sources.catch_36kr_tech import catch_36kr_tech
 from catch_sources.catch_IThome import catch_IThome
 from catch_sources.catch_JQZX import catch_JQZX  # 机器之心
 from catch_sources.catch_QBitAI import catch_QBitAI
@@ -87,7 +88,7 @@ def catch_all(days = 1, english_source = True):
     info_36kr = catch_36kr(days)
     print('   -- 36氪 Catch Success')
 
-    info_36kr_tech = catch_36kr(days)
+    info_36kr_tech = catch_36kr_tech(days)
     print('   -- 36氪 Tech news Catch Success')
 
     JQZX = catch_JQZX(days)

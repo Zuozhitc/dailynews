@@ -16,16 +16,12 @@ def main():
             include_news = include_news_var.get()
             include_papers = include_papers_var.get()
             include_product = include_product_var.get()
-            choice = choice_var.get()
 
             progress_label.config(text="Generating report...")
             root.update_idletasks()
 
             try:
-                if choice:
-                    make_report(manual, paper_days, news_days, include_news, include_papers, include_product, choice)
-                else:
-                    make_report(manual, paper_days, news_days, include_news, include_papers, include_product)
+                make_report(manual, paper_days, news_days, include_news, include_papers, include_product)
                 progress_label.config(text="Report generated successfully!")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to generate report: {e}")
@@ -98,15 +94,6 @@ def main():
         delete_button = ttk.Button(root, text="删除今日记录", command=confirm_delete, style="Delete.TButton")
         delete_button.pack(pady=5)
 
-        # Choice section
-        choice_frame = ttk.LabelFrame(root, text="Choice Options")
-        choice_frame.pack(fill="x", padx=10, pady=10)
-        choice_var = tk.StringVar(value="gpt5")
-        choice_label = ttk.Label(choice_frame, text="Choice:")
-        choice_label.pack(side="left", padx=10)
-        choice_combobox = ttk.Combobox(choice_frame, textvariable=choice_var, values=["gpt5"],
-                                       state="readonly")
-        choice_combobox.pack(side="left", padx=10)
 
         # Generate report button
         generate_button = ttk.Button(root, text="开始生成报告", command=generate_report)

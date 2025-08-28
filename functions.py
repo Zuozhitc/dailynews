@@ -1,7 +1,5 @@
 import re
 
-from sympy.core.random import choice
-
 import api_func as api
 import copy
 from datetime import date
@@ -174,7 +172,7 @@ def get_arxiv_pdf_abstract(url):
 
 
 # 总结网页的信息
-def summarize_web(link, choice = "gpt5"):
+def summarize_web(link):
     try :
         text = catch_link(link)
     except:
@@ -195,13 +193,13 @@ def summarize_web(link, choice = "gpt5"):
     Qwen 2-Math 在处理数学题目时表现出色，能够准确地解决一些简单的计算题，不能处理几何题。在面对更复杂的题目时，例如只有 GPT-5 答对过的概率题， Qwen 2-Math 未能给出正确答案。目前，Qwen 2-Math 主要针对英文场景，但 Qwen 2-Math 也能解答中文题目，并计划推出中英双语版本\n
 
     网页信息如下：\n{text}。记得使用中文作答'''
-    result = api.gpt_request(prompt, choice)
+    result = api.gpt_request(prompt)
     # print("API 返回结果：", result)
     result = text_format_beautify(result)
     print("格式化结果：", result)
     return result
 
-def summarize_product(link, choice = "gpt5"):
+def summarize_product(link):
     try:
         text = catch_link(link)
     except:
@@ -218,14 +216,14 @@ def summarize_product(link, choice = "gpt5"):
     Undermind 通过分析用户的研究兴趣和需求， Undermind 能够智能推荐相关的科学论文，支持研究人员在海量文献中快速筛选出高价值的内容，并提供用户友好的界面和便捷的访问方式\n
 
     网页信息如下：\n{text}。记得使用中文作答'''
-    result = api.gpt_request(prompt, choice)
+    result = api.gpt_request(prompt)
     # print("API 返回结果：", result)
     result = text_format_beautify(result)
     print("格式化结果：", result)
     return result
 
 #总结论文的信息
-def summarize_paper(link, choice = "gpt5"):
+def summarize_paper(link):
     try:
         text = get_arxiv_pdf_abstract(link)
     except:
@@ -253,7 +251,7 @@ def summarize_paper(link, choice = "gpt5"):
             如果相应的输入内容缺失，请回复“标题：缺失” 正文：“缺失”。
             网页信息如下：\n{text}
             '''
-    result = api.gpt_request(prompt, choice)
+    result = api.gpt_request(prompt)
     # print("API 返回结果：", result)
     result = text_format_beautify(result)
     print("格式化结果：", result)

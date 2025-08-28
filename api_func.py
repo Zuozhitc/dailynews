@@ -29,7 +29,8 @@ def openai_5_request(question):
     return result['answer']
 
 
-def gpt_request(question, choice="gpt5"):
+def gpt_request(question):
+
     return openai_5_request(question)
 
 

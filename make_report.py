@@ -94,6 +94,7 @@ def main():
         delete_button = ttk.Button(root, text="删除今日记录", command=confirm_delete, style="Delete.TButton")
         delete_button.pack(pady=5)
 
+
         # Generate report button
         generate_button = ttk.Button(root, text="开始生成报告", command=generate_report)
         generate_button.pack(pady=10)

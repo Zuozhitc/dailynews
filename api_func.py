@@ -30,6 +30,7 @@ def openai_5_request(question):
 
 
 def gpt_request(question):
+
     return openai_5_request(question)
 
 

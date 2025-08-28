@@ -1,0 +1,13 @@
+python-docx
+openai
+requests
+pandas
+feedparser
+urllib3
+readability-lxml
+sympy
+bs4
+selenium
+PyPDF2
+lxml_html_clean
+openpyxl

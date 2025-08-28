@@ -8,9 +8,9 @@ from send_email import send_report_email
 
 # Email configuration
 EMAIL_CONFIG = {
-    'sender_email': '346988083@qq.com',
-    'sender_password': 'jfxprxstvepqbgeb',  # For QQ mail, this is an authorization code
-    'receiver_email': ['346988083@qq.com'],  # Changed to a list for multiple recipients
+    'sender_email': 'email address',
+    'sender_password': 'authorization code',  # For QQ mail, this is an authorization code
+    'receiver_email': ['email address'],  # Changed to a list for multiple recipients
     'subject': 'AI Daily Report - {date}',
     'body': 'Dear all,\n\nPlease find the AI daily report below.\n\nBest regards,\nAI Report System'
 }

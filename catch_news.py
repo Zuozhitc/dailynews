@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Aug  8 16:03:05 2024
-
-@author: jiashengzhang
-"""
-
 import datetime
 import re
 import sqlite3

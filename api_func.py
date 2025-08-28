@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul 22 20:57:26 2024
-
-@author: jiashengzhang
-"""
 ###################     GPT-4o    ###################
 from openai import OpenAI
 import requests
@@ -12,7 +5,7 @@ import requests
 def openai_4o_request(question):
     client = OpenAI(
         # 将这里换成你在便携AI聚合API后台生成的令牌
-        api_key='sk-3aJBXfoxgfpnNPiaeZK4naaCHtrenv2HU8gJCyRc5zpj4Dcm',
+        api_key='',
         # 这里将官方的接口访问地址替换成便携AI聚合API的入口地址
         base_url="https://api.bianxie.ai/v1"
     )
@@ -34,7 +27,7 @@ def openai_4o_request(question):
 def gpt_4o_mini_request(question):
     client = OpenAI(
         # 将这里换成你在便携AI聚合API后台生成的令牌
-        api_key='sk-3aJBXfoxgfpnNPiaeZK4naaCHtrenv2HU8gJCyRc5zpj4Dcm',
+        api_key='',
         # 这里将官方的接口访问地址替换成便携AI聚合API的入口地址
         base_url="https://api.bianxie.ai/v1"
     )
@@ -57,7 +50,7 @@ def gpt_4o_mini_request(question):
 def openai_41_request(question):
     client = OpenAI(
         # 将这里换成你在便携AI聚合API后台生成的令牌
-        api_key='sk-3aJBXfoxgfpnNPiaeZK4naaCHtrenv2HU8gJCyRc5zpj4Dcm',
+        api_key='',
         # 这里将官方的接口访问地址替换成便携AI聚合API的入口地址
         base_url="https://api.bianxie.ai/v1"
      )

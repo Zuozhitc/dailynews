@@ -70,14 +70,14 @@ def convert_docx_to_html(docx_path) -> str:
 # 分批粗筛选标题
 def rough_filter_batch(new_infos) -> list:
     # 把titles写到一个str中
-    info_titles = [f"{index}. {item['title']}" for index, item in enumerate(new_infos)]
+    info_titles = [f"{index}. {item['title']}" for index, item in enumerate(new_infos, 1)]
     info_titles_text = '\n'.join(info_titles)
 
-    # 让gpt-4o筛选哪些titles是相关内容，输出索引号
+    # 让gpt-5筛选哪些titles是相关内容，输出索引号
     filtered_info_titles_index = func.title_filter_rough(info_titles_text)
 
     # 筛选出包含这些有用title的元素
-    filtered_info = [item for index, item in enumerate(new_infos) if index in filtered_info_titles_index]
+    filtered_info = [item for index, item in enumerate(new_infos, 1) if index in filtered_info_titles_index]
     return filtered_info
 
 
@@ -103,7 +103,7 @@ def get_news(days=1):
     # 第二次筛选与分组
     print('STEP 4 第二次筛选新闻标题')
     info_titles2link = {item['title']: item['link'] for item in filtered_info}
-    filtered_info_index_titles = [f"{index}. {item['title']}" for index, item in enumerate(filtered_info)]
+    filtered_info_index_titles = [f"{index}. {item['title']}" for index, item in enumerate(filtered_info, 1)]
     filtered_info_index_titles_text = '\n'.join(filtered_info_index_titles)
 
     info_titles_final_index = func.title_filter_final(filtered_info_index_titles_text)
@@ -115,7 +115,12 @@ def get_news(days=1):
         if isinstance(indices_dict, dict):
             cleaned_indices_dict = {}
             for subcategory, indices in indices_dict.items():
-                unique_titles = list({filtered_info[i]['title']: i for i in indices}.keys())
+                unique_titles = []
+                for idx in indices:
+                    if 1 <= idx <= len(filtered_info):
+                        title = filtered_info[idx - 1]['title']
+                        if title not in unique_titles:
+                            unique_titles.append(title)
                 if unique_titles:
                     cleaned_indices_dict[subcategory] = {title: i for i, title in enumerate(unique_titles)}
             if cleaned_indices_dict:
@@ -190,7 +195,7 @@ def get_producthunt():
 
 
 # 用于将新闻玩家信息总结
-def write_news(new_doc, info_titles_final, info_titles2link, manual=False, choice='4o'):
+def write_news(new_doc, info_titles_final, info_titles2link, manual=False):
     # 标准开头
     doc.add_title(new_doc, f'【ChatGPT全球动态日报{datetime.datetime.now().strftime("%m%d")}】 — TEG战略发展中心推送', level=1)
     doc.add_paragraph(new_doc, 'Dear all，')
@@ -221,7 +226,7 @@ def write_news(new_doc, info_titles_final, info_titles2link, manual=False, choic
                     catch_news.add_links([info_titles2link[player_info]])  # 将链接加入到数据库中，避免重复
                 spaced_player_info = func.text_format_beautify(player_info)
                 print(spaced_player_info)
-                summary = func.summarize_web(info_titles2link[player_info], choice)
+                summary = func.summarize_web(info_titles2link[player_info])
 
                 # 标题用原文标题 + 链接
                 doc.add_link(new_doc, spaced_player_info, info_titles2link[player_info])
@@ -242,7 +247,7 @@ def write_news(new_doc, info_titles_final, info_titles2link, manual=False, choic
 
 
 # 用于将论文信息总结
-def write_papers(new_doc, papers, manual=False, choice='4o'):
+def write_papers(new_doc, papers, manual=False):
     doc.add_title(new_doc, '二、技术前沿分析', level=1)
 
     # 无论文
@@ -255,7 +260,7 @@ def write_papers(new_doc, papers, manual=False, choice='4o'):
     for paper in papers:
         try:
             if not catch_news.link_exists(paper):
-                summary = func.summarize_paper(paper, choice)
+                summary = func.summarize_paper(paper)
                 catch_news.add_links([paper])
 
                 if summary is None or len(summary.strip()) == 0:
@@ -286,7 +291,7 @@ def write_papers(new_doc, papers, manual=False, choice='4o'):
     save_doc(new_doc, 'papers')
 
 
-def write_producthunt(new_doc, producthunt_items, manual=False, choice='4o'):
+def write_producthunt(new_doc, producthunt_items, manual=False):
     doc.add_title(new_doc, '三、应用场景分析', level=1)
 
     if producthunt_items is None or len(producthunt_items) == 0:
@@ -302,7 +307,7 @@ def write_producthunt(new_doc, producthunt_items, manual=False, choice='4o'):
 
             if not catch_news.link_exists(link):
                 catch_news.add_links([link])
-                summary = func.summarize_product(link, choice)
+                summary = func.summarize_product(link)
 
                 if summary is None or len(summary.strip()) == 0:
                     continue
@@ -340,7 +345,7 @@ def write_producthunt(new_doc, producthunt_items, manual=False, choice='4o'):
 
 
 def make_report(manual=False, paper_days=1, news_days=1,
-                makenews=True, makepapers=True, makeproduct=True, choice='4o'):
+                makenews=True, makepapers=True, makeproduct=True):
     """
     生成报告（docx），并在最后把最终 docx 转为 HTML 字符串返回
     scheduler → send_email 会把该 HTML 作为邮件正文发送
@@ -353,7 +358,7 @@ def make_report(manual=False, paper_days=1, news_days=1,
         if makenews:
             try:
                 info_titles_final, info_titles2link = get_news(news_days)
-                write_news(new_doc, info_titles_final, info_titles2link, manual, choice=choice)
+                write_news(new_doc, info_titles_final, info_titles2link, manual)
             except Exception as e:
                 print(f"处理新闻部分时出错: {e}")
                 doc.add_title(new_doc, '一、玩家动态追踪', level=1)
@@ -363,7 +368,7 @@ def make_report(manual=False, paper_days=1, news_days=1,
         if makepapers:
             try:
                 papers = get_papers(paper_days, save_to_excel=True)
-                write_papers(new_doc, papers, manual, choice=choice)
+                write_papers(new_doc, papers, manual)
             except Exception as e:
                 print(f"处理论文部分时出错: {e}")
                 doc.add_title(new_doc, '二、技术前沿分析', level=1)
@@ -373,7 +378,7 @@ def make_report(manual=False, paper_days=1, news_days=1,
         if makeproduct:
             try:
                 producthunt_items = get_producthunt()
-                write_producthunt(new_doc, producthunt_items, manual, choice=choice)
+                write_producthunt(new_doc, producthunt_items, manual)
             except Exception as e:
                 print(f"处理产品部分时出错: {e}")
                 doc.add_title(new_doc, '三、应用场景分析', level=1)

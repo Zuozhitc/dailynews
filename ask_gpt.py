@@ -42,7 +42,7 @@ def main():
 
     # Create summary sections
     create_summary_section(paper_frame, "Paper Summary", func.summarize_paper)
-    create_summary_section(web_frame, "Web Content Summary", func.mini_4o_summarize_web)
+    create_summary_section(web_frame, "Web Content Summary", func.summarize_web)
     create_summary_section(product_frame, "Product Summary", func.summarize_product)
 
     # Run the application

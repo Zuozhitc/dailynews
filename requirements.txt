@@ -11,3 +11,4 @@ selenium
 PyPDF2
 lxml_html_clean
 openpyxl
+schedule

@@ -47,7 +47,7 @@ def generate_and_send_report():
         paper_days = 1 if datetime.datetime.now().weekday() != 1 else 3
         news_days = 2 if datetime.datetime.now().weekday() != 0 else 3
 
-        report_content = make_report(manual, paper_days, news_days, True, True, True, '4o')
+        report_content = make_report(manual, paper_days, news_days, True, True, True, 'gpt5')
 
         if not report_content:
             print("生成报告内容为空")

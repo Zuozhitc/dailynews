@@ -27,17 +27,24 @@ def title_filter_rough(full_text):
                     '不需要print。如果没有任何可用的信息，直接让news_current为一个空list。'''
 
 
-    # 让gpt找到所有相关的词条和对应网址，result变量还不是可以运行的python文件
+    # 让gpt找到所有相关的词条和对应网址，result 变量还不是可以运行的 python 文件
     result = api.gpt_request(prompt_prefix.format(text=full_text, date=date.today()))
-    # print(result)
 
-
-    # print('粗筛成功')
-    # 分割出可执行文件，然后运行，获得news_current字典
-    result_run = re.search(r"```(.*?)```", result, re.DOTALL).group(1).split('python')[1].strip()
-    exec_namespace = {}
-    exec(result_run, exec_namespace)
-    news_current = exec_namespace.get('news_current', {})
+    # 分割出可执行文件，然后运行，获得 news_current 字典
+    match = re.search(r"```(.*?)```", result, re.DOTALL)
+    if match:
+        code_block = match.group(1)
+        parts = code_block.split('python')
+        result_run = parts[1].strip() if len(parts) > 1 else parts[0].strip()
+        exec_namespace = {}
+        try:
+            exec(result_run, exec_namespace)
+        except Exception:
+            exec_namespace['news_current'] = []
+    else:
+        # 如果未找到代码块，则返回空列表，避免 NoneType 错误
+        exec_namespace = {'news_current': []}
+    news_current = exec_namespace.get('news_current', [])
 
     # 深拷贝 news_current 并添加到 news_list 中
     news_list = copy.deepcopy(news_current)
@@ -64,9 +71,19 @@ def title_filter_final(titles_text):
 
     result = api.gpt_request(prompt_prefix.format(titles = titles_text))
 
-    result_run = re.search(r"```(.*?)```", result, re.DOTALL).group(1).split('python')[1].strip()
-    exec(result_run,globals())
-    titles_fine = eval('titles_fine')
+    match = re.search(r"```(.*?)```", result, re.DOTALL)
+    if match:
+        code_block = match.group(1)
+        parts = code_block.split('python')
+        result_run = parts[1].strip() if len(parts) > 1 else parts[0].strip()
+        try:
+            exec(result_run, globals())
+            titles_fine = eval('titles_fine')
+        except Exception:
+            titles_fine = {}
+    else:
+        # 没有返回代码块时，直接返回空字典
+        titles_fine = {}
 
     return titles_fine
 
@@ -157,7 +174,7 @@ def get_arxiv_pdf_abstract(url):
 
 
 # 总结网页的信息
-def summarize_web(link, choice = "4o"):
+def summarize_web(link, choice = "gpt5"):
     try :
         text = catch_link(link)
     except:
@@ -175,43 +192,16 @@ def summarize_web(link, choice = "4o"):
     下面是输出范例：
     阿里发布全球最强数学大模型 Qwen 2-Math 的 Demo，用户可以通过截图或扫描上传数学题目进行解题，目前其 OCR 功能由 Qwen 2-VL 支持，数学推理能力则由 Qwen 2-Math 提供。未来，阿里计划将多模态能力和数学推理能力结合到一个模型中\n
     Qwen 2-Math 基于通义千问开源大语言模型 Qwen 2 研发，专用于数学解题，能够解决竞赛级试题。 Qwen 2-Math 有 72B 、 7B 和 1.5B 三个版本，其中 Qwen 2-Math-72 B-Instruct 是旗舰模型，处理多种数学问题的准确率达到 84%\n
-    Qwen 2-Math 在处理数学题目时表现出色，能够准确地解决一些简单的计算题，不能处理几何题。在面对更复杂的题目时，例如只有 GPT-4o 答对过的概率题， Qwen 2-Math 未能给出正确答案。目前，Qwen 2-Math 主要针对英文场景，但 Qwen 2-Math 也能解答中文题目，并计划推出中英双语版本\n
+    Qwen 2-Math 在处理数学题目时表现出色，能够准确地解决一些简单的计算题，不能处理几何题。在面对更复杂的题目时，例如只有 GPT-5 答对过的概率题， Qwen 2-Math 未能给出正确答案。目前，Qwen 2-Math 主要针对英文场景，但 Qwen 2-Math 也能解答中文题目，并计划推出中英双语版本\n
 
     网页信息如下：\n{text}。记得使用中文作答'''
-    result = api.gpt_request(prompt, choice)
-    # result = api.gpt_4o_mini_request(prompt)
-    # print("API 返回结果：", result)
-    result = text_format_beautify(result)
-    print("格式化结果：", result)
-    return result
-
-def mini_4o_summarize_web(link, choice = "mini"):
-    try :
-        text = catch_link(link)
-    except:
-        text = f"{link}. 请人工检查"
-
-    prompt = f'''全程使用中文作答。以下是一个新闻的网页内容，你是一个网页内容总结助手，专门帮助用户将网页内容总结为 3 条详细的段落。
-    每当用户提供网页内容时，你会按照以下步骤总结内容：
-    首先，理解原文并识别关键点，重点关注事实性的信息以及数字，对于“促进、推动、展示、潜力、方向、思路、巩固市场、加强合作、奠定基础”等不重要的信息不要收录；
-    接着，根据文章原文摘录出 bullet point，每个 bullet point 继续提供详细内容，确保符合原文、层次分明、逻辑清晰、信息准确，并保留重要细节。
-    你的目标是生成易读且信息丰富的文章摘要，帮助用户快速掌握网页内容，注意不要额外添加自己的观点，也不要对原文进行额外的总结。
-    注意不要使用第一人称，不要使用markdown格式，每个段落结束换行，每个段落开头不要使用特殊符号
-    例如，对于新闻“阿里发布全球最强数学大模型 Qwen 2-Math 的 Demo 版本，用户可以上传数学题解题”，
-    下面是输出范例：
-    阿里发布全球最强数学大模型 Qwen 2-Math 的 Demo，用户可以通过截图或扫描上传数学题目进行解题，目前其 OCR 功能由 Qwen 2-VL 支持，数学推理能力则由 Qwen 2-Math 提供。未来，阿里计划将多模态能力和数学推理能力结合到一个模型中\n
-    Qwen 2-Math 基于通义千问开源大语言模型 Qwen 2 研发，专用于数学解题，能够解决竞赛级试题。 Qwen 2-Math 有 72B 、 7B 和 1.5B 三个版本，其中 Qwen 2-Math-72 B-Instruct 是旗舰模型，处理多种数学问题的准确率达到 84%\n
-    Qwen 2-Math 在处理数学题目时表现出色，能够准确地解决一些简单的计算题，不能处理几何题。在面对更复杂的题目时，例如只有 GPT-4o 答对过的概率题， Qwen 2-Math 未能给出正确答案。目前，Qwen 2-Math 主要针对英文场景，但 Qwen 2-Math 也能解答中文题目，并计划推出中英双语版本\n
-
-    网页信息如下：\n{text}。记得使用中文作答'''
-    # result = api.gpt_request(prompt)
     result = api.gpt_request(prompt, choice)
     # print("API 返回结果：", result)
     result = text_format_beautify(result)
     print("格式化结果：", result)
     return result
 
-def summarize_product(link, choice = "mini"):
+def summarize_product(link, choice = "gpt5"):
     try:
         text = catch_link(link)
     except:
@@ -235,7 +225,7 @@ def summarize_product(link, choice = "mini"):
     return result
 
 #总结论文的信息
-def summarize_paper(link, choice = "4o"):
+def summarize_paper(link, choice = "gpt5"):
     try:
         text = get_arxiv_pdf_abstract(link)
     except:
